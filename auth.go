@@ -158,14 +158,18 @@ func (a *Authorizer) SetAuthHeader(req *http.Request) {
 	if !a.initialised {
 		return
 	}
+	url := req.URL.Path
+	if len(req.URL.RawQuery) != 0 {
+		url += "?" + req.URL.RawQuery
+	}
 	params := make([]string, 0, 12)
 	params = append(params, fmt.Sprintf(`username="%s"`, a.username))
 	params = append(params, fmt.Sprintf(`realm="%s"`, a.realm))
-	params = append(params, fmt.Sprintf(`uri="%s"`, req.URL.Path))
+	params = append(params, fmt.Sprintf(`uri="%s"`, url))
 	params = append(params, fmt.Sprintf(`nonce="%s"`, a.nonce))
 
 	a.cnonce_lock.Lock()
-	params = append(params, fmt.Sprintf(`response="%s"`, a.Response(req.Method, req.URL.Path)))
+	params = append(params, fmt.Sprintf(`response="%s"`, a.Response(req.Method, url)))
 	if a.qop == "auth" {
 		params = append(params, fmt.Sprintf(`nc=%08d`, a.cn))
 		params = append(params, fmt.Sprintf(`cnonce="%s"`, a.cnonce))
