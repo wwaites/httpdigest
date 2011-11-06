@@ -84,6 +84,10 @@ func (a *Authorizer) AuthReady() bool {
 	return a.initialised
 }
 
+func (a *Authorizer) Reauth() {
+	a.initialised = false
+}
+
 func (a *Authorizer) User(username string) *Authorizer {
 	a.username = username
 	return a
