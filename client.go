@@ -11,11 +11,19 @@ type DigestClient struct {
 }
 
 func (d *DigestClient) Do(req *http.Request) (resp *http.Response, err os.Error) {
+	// XXX kludge - reauth all the time
+	d.Digest.Reauth()
+	if err = d.Poke(req); err != nil {
+		return
+	}
+
+	/* XXX should really work like this
 	if !d.Digest.AuthReady() {
 		if err = d.Poke(req); err != nil {
 			return
 		}
 	}
+	*/
 
 	d.Digest.SetAuthHeader(req)
 	resp, err = d.Client.Do(req)
